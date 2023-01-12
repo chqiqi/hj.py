@@ -7,6 +7,17 @@ import scrapy
 
 
 class HjItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
-    pass
+    #中文名称
+    name = scrapy.Field()
+    #英文名称
+    enname = scrapy.Field()
+    #CAS号
+    casno = scrapy.Field()
+    #分子式
+    formula = scrapy.Field()
+    #分子量
+    weight = scrapy.Field()
+    #毒害物质数据
+    dangerInfoUrl = scrapy.Field()
+
+
