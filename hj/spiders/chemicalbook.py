@@ -16,31 +16,39 @@ class ChemicalbookSpider(scrapy.Spider):
             catalog1Url = catalog1.css("a::attr(href)").extract_first("")
             catalog1Title = catalog1.css("a::text").extract_first("")
             print(catalog1Url)
-            yield Request(url=parse.urljoin(response.url, catalog1Url), meta={"catalog1Title": catalog1Title,"catalog1Url":catalog1Url},
+            yield Request(url=parse.urljoin(response.url, catalog1Url), meta={"catalog1Title": catalog1Title,"currUrl":catalog1Url},
                           callback=self.parsePage)
 
     def parsePage(self, response):
         meta = response.meta
-        catalog1Url = meta.get("catalog1Url", "")
-        if catalog1Url.startswith( 'ProductChemicalProperties' ):
-            yield self.buildItem(meta,response)
+        currUrl = meta.get("currUrl", "")
+        if currUrl.startswith( '/ProductChemicalProperties' ):
+            item = HjItem()
+            baseInfoTrs = response.css("tr[class^='ProdSupplierGN_ProductA']")
+            for baseInfo in baseInfoTrs:
+                baseInfoTds = baseInfo.css("td")
+                if len(baseInfoTds) == 2:
+                    fieldName = baseInfoTds[0].css("td::text").extract_first("")
+                    fieldValue = baseInfoTds[1].css("td a::text").extract_first("")
+                    yield item
         else:
             subCatalogs = response.xpath("//div[@id='tabsort']//a")
             if len(subCatalogs) == 1:
-                pass
+                detailUrls = response.xpath("//dl/dd/em/a")
+                for detailUrl in detailUrls:
+                    url = detailUrl.css("a::attr(href)").extract_first("")
+                    if url.startswith( '/ProductChemicalProperties' ):
+                        meta['currUrl'] = url
+                        yield Request(url=parse.urljoin(response.url, url),
+                                      meta=meta,
+                                      callback=self.parsePage)
             else:
                 for subCatalog in subCatalogs:
                     subCatalogUrl = subCatalog.css("a::attr(href)").extract_first("")
+                    meta['currUrl'] = subCatalogUrl
                     yield Request(url=parse.urljoin(response.url, subCatalogUrl),
                                   meta=meta,
                                   callback=self.parsePage)
 
 
-    def buildItem(meta,response):
-        item = HjItem()
-        baseInfoTrs = response.css("#ContentPlaceHolder1_ProductProperty tr")
-        for baseInfo in baseInfoTrs:
-            baseInfoTds = baseInfo.css("td")
-            fieldName = baseInfoTds[0].css("td::text").extract_first("")
-            fieldValue = baseInfoTds[1].css("td::text").extract_first("")
-        return item
+
