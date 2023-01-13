@@ -18,6 +18,10 @@ class HjItem(scrapy.Item):
     #分子量
     weight = scrapy.Field()
     #毒害物质数据
+    dangerInfoTxt = scrapy.Field()
+    #毒害物质数据
     dangerInfoUrl = scrapy.Field()
+    #类目名称
+    catalogTitle = scrapy.Field()
 
 
