@@ -21,7 +21,7 @@ class ChemicalbookSpider(scrapy.Spider):
                           callback=self.parsePage)
 
     def parsePage(self, response):
-        time.sleep(1)
+        time.sleep(2)
         meta = response.meta
         catalogTitle = meta.get("catalogTitle","")
         currUrl = meta.get("currUrl", "")
