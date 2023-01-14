@@ -55,6 +55,12 @@ ROBOTSTXT_OBEY = False
 #DOWNLOADER_MIDDLEWARES = {
 #    'hj.middlewares.HjDownloaderMiddleware': 543,
 #}
+DOWNLOADER_MIDDLEWARES = {
+    'hj.middlewares.RandomUserAgentMiddlware': 1,
+    'hj.middlewares.RandomProxyMiddleware': 2,
+     'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None
+}
+
 
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
