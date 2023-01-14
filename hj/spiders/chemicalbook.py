@@ -44,6 +44,10 @@ class ChemicalbookSpider(scrapy.Spider):
                         #单独取一下链接
                         if mapField == 'dangerInfoTxt':
                             item['dangerInfoUrl'] = baseInfoTds[1].css("td a::attr(href)").extract_first("")
+                elif len(baseInfoTds) == 1:
+                    fieldValue = baseInfoTds[0].css("td img::attr(src)").extract_first("")
+                    if fieldValue != "":
+                        item['formulaImgUrl'] = [parse.urljoin(response.url,fieldValue)]
             if needHandle:
                 yield item
         else:

@@ -5,9 +5,21 @@
 
 
 # useful for handling different item types with a single interface
+from scrapy.pipelines.images import ImagesPipeline
 from itemadapter import ItemAdapter
 import pymysql
 pymysql.install_as_MySQLdb()
+
+
+class HjImagePipeline(ImagesPipeline):
+    def item_completed(self, results, item, info):
+        if "formulaImgUrl" in item:
+            image_file_path = []
+            for ok, value in results:
+                image_file_path.append(value["path"])
+            if len(image_file_path)>0:
+                item["formulaImgAddr"] = image_file_path[0]
+        return item
 
 class HjPipeline:
     def __init__(self):
@@ -18,18 +30,29 @@ class HjPipeline:
         print(item)
         insert_sql = """
                         INSERT INTO t_chemical_list
-                            (name, enname, casno, formula, weight, dangerInfoTxt, dangerInfoUrl, catalogTitle)
-                            VALUES(%s, %s, %s, %s, %s, %s, %s, %s)
+                            (name, enname, casno, formula, weight, dangerInfoTxt, dangerInfoUrl, catalogTitle,formulaImgAddr)
+                            VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                            on duplicate key update 
+                            enname=%s, casno=%s, formula=%s, weight=%s, dangerInfoTxt=%s, dangerInfoUrl=%s, catalogTitle=%s,formulaImgAddr=%s
                     """
         self.cursor.execute(insert_sql, (
             item.get("name", ""),
             item.get("enname", ""),
             item.get("casno", ""),
             item.get("formula", ""),
-            item["weight"],
+            item.get("weight", "0"),
             item.get("dangerInfoTxt", ""),
             item.get("dangerInfoUrl", ""),
-            item.get("catalogTitle", "")
+            item.get("catalogTitle", ""),
+            item.get("formulaImgAddr", ""),
+            item.get("enname", ""),
+            item.get("casno", ""),
+            item.get("formula", ""),
+            item.get("weight", "0"),
+            item.get("dangerInfoTxt", ""),
+            item.get("dangerInfoUrl", ""),
+            item.get("catalogTitle", ""),
+            item.get("formulaImgAddr", "")
         ))
         self.conn.commit()
         return item
