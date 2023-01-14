@@ -57,7 +57,7 @@ ROBOTSTXT_OBEY = False
 #}
 DOWNLOADER_MIDDLEWARES = {
     'hj.middlewares.RandomUserAgentMiddlware': 1,
-    'hj.middlewares.RandomProxyMiddleware': 2,
+    #'hj.middlewares.RandomProxyMiddleware': 2,
      'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None
 }
 

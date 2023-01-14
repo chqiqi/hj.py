@@ -2,6 +2,7 @@ import requests
 from scrapy.selector import Selector
 import pymysql
 pymysql.install_as_MySQLdb()
+import time
 
 conn = pymysql.connect(host='127.0.0.1', user='root', password='1234.abcd', database='hj', charset="utf8", use_unicode=True)
 cursor = conn.cursor()
@@ -10,12 +11,11 @@ cursor = conn.cursor()
 def crawl_ips():
     #爬取西刺的免费ip代理
     headers = {"User-Agent":"Mozilla/5.0 (Windows NT 6.1; WOW64; rv:52.0) Gecko/20100101 Firefox/52.0"}
-    for i in range(1568):
+    for i in range(1,4967):
         re = requests.get("https://www.kuaidaili.com/free/inha/{0}/".format(i), headers=headers)
-
+        time.sleep(2)
         selector = Selector(text=re.text)
         all_trs = selector.css("#list table tbody tr")
-
 
         ip_list = []
         for tr in all_trs[1:]:
@@ -29,7 +29,7 @@ def crawl_ips():
 
         for ip_info in ip_list:
             cursor.execute(
-                "insert t_proxy_ip(ip, port, speed, proxy_type) VALUES('{0}', '{1}', '{2}', '{3}')".format(
+                "insert ignore into t_proxy_ip(ip, port, speed, proxy_type) VALUES('{0}', '{1}', '{2}', '{3}')".format(
                     ip_info[0], ip_info[1], ip_info[3], ip_info[2]
                 )
             )
